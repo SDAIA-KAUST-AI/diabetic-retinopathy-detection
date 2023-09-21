@@ -1,0 +1,21 @@
+name: diabetic-retinopathy-detection
+
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  - dask
+  - gh
+  - git
+  - kaggle
+  - jupyterlab
+  - jupyterlab-nvdashboard
+  - lightning
+  - pytorch
+  - pytorch-cuda=11.8
+  - scikit-learn
+  - torchvision
+  
