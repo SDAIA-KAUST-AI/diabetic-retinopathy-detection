@@ -14,6 +14,7 @@ dependencies:
   - jupyterlab
   - jupyterlab-nvdashboard
   - lightning
+  - nbgitpuller
   - pytorch
   - pytorch-cuda=11.8
   - scikit-learn
