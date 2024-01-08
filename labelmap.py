@@ -1,3 +1,5 @@
+""" Mapping of class IDs to lables. """
+
 DR_LABELMAP = {
     0: 'No DR',
     1: 'Mild',

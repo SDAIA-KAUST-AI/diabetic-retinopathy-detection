@@ -49,7 +49,15 @@ DataRecord = Tuple[Image.Image, int]
 
 
 class RetinopathyDataset(data.Dataset[DataRecord]):
+    """ A class to access the pre-downloaded Diabetic Retinopathy dataset. """
+
     def __init__(self, data_path: str) -> None:
+        """ Constructor.
+
+        Args:
+            data_path (str): path to the dataset, ex: "retinopathy_data"
+                containing "trainLabels.csv" and "train/".
+        """
         super().__init__()
 
         self.data_path = data_path
@@ -88,21 +96,25 @@ class RetinopathyDataset(data.Dataset[DataRecord]):
         return img_path
 
 
+""" Purpose of a split: training or validation. """
 class Purpose(Enum):
     Train = 0
     Val = 1
 
-
+""" Augmentation transformations for an image and a label. """
 FeatureAndTargetTransforms = Tuple[Callable[..., torch.Tensor],
                                    Callable[..., torch.Tensor]]
 
+""" Feature (image) and target (label) tensors. """
 TensorRecord = Tuple[torch.Tensor, torch.Tensor]
-
-def normalize(arr: np.ndarray) -> np.ndarray:
-    return arr / np.sum(arr)
 
 
 class Split(data.Dataset[TensorRecord], collections.abc.Sequence[TensorRecord]):
+    """ Split is a class that keep a view on a part of a dataset.
+    Split is used to hold the imormation about which samples go to training
+    and which to validation without a need to put these groups of files into
+    separate folders.
+    """
     def __init__(self, dataset: RetinopathyDataset,
                  indices: np.ndarray,
                  purpose: Purpose,
@@ -111,7 +123,24 @@ class Split(data.Dataset[TensorRecord], collections.abc.Sequence[TensorRecord]):
                  stratify_classes: bool = False,
                  use_log_frequencies: bool = False,
                  ):
+        """ Constructor.
 
+        Args:
+            dataset (RetinopathyDataset): The dataset on which the Split "views".
+            indices (np.ndarray): Externally provided indices of samples that
+                are "viewed" on.
+            purpose (Purpose): Either train or val, to be able to replicate
+                the data for train split for effecient workers utilization.
+            transforms (FeatureAndTargetTransforms): Functors of feature and
+                target transforms.
+            oversample_factor (int, optional): Expand the training dataset by
+                replication to avoid dataloader stalls on epoch ends. Defaults to 1.
+            stratify_classes (bool, optional): Whether to apply stratified sampling.
+                Defaults to False.
+            use_log_frequencies (bool, optional): If stratify_classes=True,
+                whether to use logarithmic sampling strategy. If False, apply
+                regular even sampling. Defaults to False.
+        """
         self.dataset = dataset
         self.indices = indices
         self.purpose = purpose
@@ -124,22 +153,26 @@ class Split(data.Dataset[TensorRecord], collections.abc.Sequence[TensorRecord]):
         self.per_class_indices: Optional[Dict[int, np.ndarray]] = None
         self.frequencies: Optional[Dict[int, float]] = None
         if self.stratify_classes:
-            self.bucketize_indices()
+            self._bucketize_indices()
             if self.use_log_frequencies:
-                self.calc_frequencies()
+                self._calc_frequencies()
 
-    def calc_frequencies(self):
+    def _calc_frequencies(self):
         assert self.per_class_indices is not None
         counts_dict = {lbl: len(arr) for lbl, arr in self.per_class_indices.items()}
         counts = np.array(list(counts_dict.values()))
-        counts_nrm = normalize(counts)
+        counts_nrm = self._normalize(counts)
         temperature = 50.0 # > 1 to even-out frequencies
-        freqs = normalize(np.log1p(counts_nrm * temperature))
+        freqs = self._normalize(np.log1p(counts_nrm * temperature))
         self.frequencies = {k: freq.item() for k, freq
                             in zip(self.per_class_indices.keys(), freqs)}
         print(self.frequencies)
 
-    def bucketize_indices(self):
+    @staticmethod
+    def _normalize(arr: np.ndarray) -> np.ndarray:
+        return arr / np.sum(arr)
+
+    def _bucketize_indices(self):
         buckets = defaultdict(list)
         for index in self.indices:
             label = self.dataset.get_label_at(index)
@@ -191,6 +224,14 @@ class Split(data.Dataset[TensorRecord], collections.abc.Sequence[TensorRecord]):
                     seed: int = 54,
                     ) -> Tuple['Split', 'Split']:
 
+        """ Prepare train and val splits deterministically.
+
+        Returns:
+            Tuple[Split, Split]:
+                - Train split
+                - Val split
+        """
+
         prng = RandomState(seed)
 
         num_train = int(len(all_data) * train_fraction)
@@ -204,7 +245,8 @@ class Split(data.Dataset[TensorRecord], collections.abc.Sequence[TensorRecord]):
         return train_data, val_data
 
 
-def print_data_stats(dataset: Union[Iterable[DataRecord], DataLoader], split_name: str) -> None:
+def print_data_stats(dataset: Union[Iterable[DataRecord], DataLoader],
+                     split_name: str) -> None:
     labels = []
     for _, label in dataset:
         if isinstance(label, torch.Tensor):
@@ -261,7 +303,16 @@ class Metrics:
         return self
 
 
-def worker_init_fn(worker_id):
+def worker_init_fn(worker_id: int) -> None:
+    """ Initialize workers in a way that they draw different
+    random samples and do not repeat identical pseudorandom
+    sequences of each other, which may be the case with Fork
+    multiprocessing.
+
+    Args:
+        worker_id (int): id of a preprocessing worker process launched
+        by one DDP training process. 
+    """
     state = np.random.get_state()
     assert isinstance(state, tuple)
     assert isinstance(state[1], np.ndarray)
@@ -274,6 +325,7 @@ def worker_init_fn(worker_id):
 
 
 class ViTLightningModule(L.LightningModule):
+    """ Lightning Module that implements neural network training hooks. """
     def __init__(self, debug: bool) -> None:
         super().__init__()
 
@@ -443,6 +495,7 @@ class ViTLightningModule(L.LightningModule):
         return loss
 
     def _dump_train_images(self) -> None:
+        """ Save augmented images to disk for inspection. """
         img_batch, label_batch = next(iter(self._train_dataloader))
         for i_img, (img, label) in enumerate(zip(img_batch, label_batch)):
             img_np = img.cpu().numpy()
@@ -494,17 +547,18 @@ class ViTLightningModule(L.LightningModule):
 
 
 def main():
+    """ Neural network trainer entry point. """
 
     parser = ArgumentParser(description='KAUST-SDAIA Diabetic Retinopathy')
     parser.add_argument('--tag', action='store', type=str,
                         help='Extra suffix to put on the artefact dir name')
-    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--debug', action='store_true',
+                        help="Dummy training cycle for testing purposes")
     parser.add_argument('--convert-checkpoint', action='store', type=str,
                         help='Convert a checkpoint from training to pickle-independent '
                              'predictor-compatible directory')
 
     args = parser.parse_args()
-
 
     torch.set_float32_matmul_precision('high') # for V100/A100
 

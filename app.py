@@ -2,7 +2,7 @@ import os
 import gradio as gr
 import numpy as np
 import torch
-from typing import Tuple, Optional, Dict, List
+from typing import Tuple, Optional, Dict, List, Dict
 import glob
 from collections import defaultdict
 
@@ -13,7 +13,10 @@ from labelmap import DR_LABELMAP
 
 
 class App:
+    """ Demonstration of the Diabetic Retinopathy model as a Gradio app. """
+
     def __init__(self) -> None:
+        """ Constructor. """
 
         ckpt_name = "2023-12-24_20-02-18_30345221_V100_x4_resnet34/"
 
@@ -41,7 +44,7 @@ class App:
                     output = gr.Label(num_top_classes=len(DR_LABELMAP),
                                       label="Retinopathy level prediction")
                 with gr.Column(scale=4):
-                    gr.Markdown("![](https://media.githubusercontent.com/media/Obs01ete/retinopathy/master/media/logo1.png)")
+                    gr.Markdown("![](https://media.githubusercontent.com/media/SDAIA-KAUST-AI/diabetic-retinopathy-detection/main/media/logo1.png)")
             with gr.Row():
                 with gr.Column(scale=9, min_width=100):
                     image = gr.Image(label="Retina scan")
@@ -66,9 +69,19 @@ class App:
         self.ui = ui
 
     def launch(self) -> None:
+        """ Launch the application, blocking. """
         self.ui.queue().launch(share=True)
 
-    def predict(self, image: Optional[np.ndarray]):
+    def predict(self, image: Optional[np.ndarray]) -> Dict[str, float]:
+        """ Gradio callback for pricessing of an image.
+
+        Args:
+            image (Optional[np.ndarray]): Provided image.
+
+        Returns:
+            Dict[str, float]: Label-compatible dict.
+        """
+
         if image is None:
             return dict()
         cls_name, prob, probs = self._infer(image)
@@ -79,6 +92,19 @@ class App:
         return probs_dict
     
     def _infer(self, image_chw: np.ndarray) -> Tuple[str, float, np.ndarray]:
+        """ Low-level method to perform neural network inference.
+
+        Args:
+            image_chw (np.ndarray): Provided image.
+
+        Returns:
+            Tuple[str, float, np.ndarray]:
+                - Most probable class name
+                - Probability of the most probable class name.
+                - Probablilities of all classes in the order of
+                  being listed in the label map.
+        """
+
         assert isinstance(self.model, ResNetForImageClassification)
 
         inputs = self.image_processor(image_chw, return_tensors="pt")
@@ -98,6 +124,11 @@ class App:
 
     @staticmethod
     def _load_example_lists() -> Dict[int, List[str]]:
+        """ Load example retina images from disk.
+
+        Returns:
+            Dict[int, List[str]]: Dictionary of cls_id -> list of images paths.
+        """
 
         example_flat_list = glob.glob("demo_data/train/**/*.jpeg")
 
@@ -115,6 +146,7 @@ class App:
 
 
 def main():
+    """ App entry point. """
     app = App()
     app.launch()
 
