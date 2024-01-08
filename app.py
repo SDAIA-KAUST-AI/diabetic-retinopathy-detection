@@ -130,7 +130,7 @@ class App:
             Dict[int, List[str]]: Dictionary of cls_id -> list of images paths.
         """
 
-        example_flat_list = glob.glob("demo_data/train/**/*.jpeg")
+        example_flat_list = glob.glob("demo_data/demo/**/*.jpeg")
 
         example_lists: Dict[int, List[str]] = defaultdict(list)
         for path in example_flat_list:
