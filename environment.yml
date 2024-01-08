@@ -69,7 +69,6 @@ dependencies:
   - parso=0.8.3=pyhd3eb1b0_0
   - pexpect=4.8.0=pyhd3eb1b0_3
   - pickleshare=0.7.5=pyhd3eb1b0_1003
-  - pip=23.3.1=py310h06a4308_0
   - platformdirs=3.10.0=py310h06a4308_0
   - prometheus_client=0.14.1=py310h06a4308_0
   - prompt-toolkit=3.0.36=py310h06a4308_0
@@ -104,7 +103,6 @@ dependencies:
   - tornado=6.3.3=py310h5eee18b_0
   - webencodings=0.5.1=py310h06a4308_1
   - wheel=0.41.2=py310h06a4308_0
-  - xz=5.4.5=h5eee18b_0
   - y-py=0.5.9=py310h52d8a92_0
   - yaml=0.2.5=h7b6447c_0
   - ypy-websocket=0.8.2=py310h06a4308_0
