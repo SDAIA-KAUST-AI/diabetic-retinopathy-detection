@@ -4,7 +4,22 @@
 
 ### Gradio app environment
 
-TODO
+Install from pip requirements file:
+
+```bash
+conda create -n retinopathy_app python=3.10
+conda activate retinopathy_app
+pip install -r requirements.txt
+python app.py
+```
+
+Install manually:
+
+```bash
+pip install pytorch --index-url  https://download.pytorch.org/whl/cpu
+pip install gradio
+pip install transformers
+```
 
 ### Training environment
 
