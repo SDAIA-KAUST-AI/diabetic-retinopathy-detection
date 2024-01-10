@@ -2,12 +2,21 @@
 
 ## Setup
 
+### Cloning the repo
+
+Install git LFS via [this instruction](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage).
+```bash
+git clone https://github.com/SDAIA-KAUST-AI/diabetic-retinopathy-detection.git
+git lfs install # to make sure LFS is enabled
+git lfs pull # to bring in demo images and pretrained models
+```
+
 ### Gradio app environment
 
 Install from pip requirements file:
 
 ```bash
-conda create -n retinopathy_app python=3.10
+conda create -y -n retinopathy_app python=3.10
 conda activate retinopathy_app
 pip install -r requirements.txt
 python app.py
