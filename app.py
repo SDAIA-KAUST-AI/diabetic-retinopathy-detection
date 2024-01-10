@@ -9,7 +9,7 @@ from collections import defaultdict
 from transformers import (AutoImageProcessor,
                           ResNetForImageClassification)
 
-from labelmap import DR_LABELMAP
+from src.labelmap import DR_LABELMAP
 
 
 class App:
