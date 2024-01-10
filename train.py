@@ -7,7 +7,7 @@ from lightning import Trainer
 from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.callbacks import ModelSummary
 
-from trainer import ViTLightningModule
+from src.trainer import ViTLightningModule
 
 
 def main():

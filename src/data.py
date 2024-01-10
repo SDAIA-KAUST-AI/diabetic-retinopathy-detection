@@ -14,7 +14,7 @@ import torch.utils.data as data
 from torch.utils.data import DataLoader
 
 
-from labelmap import DR_LABELMAP
+from src.labelmap import DR_LABELMAP
 
 
 DataRecord = Tuple[Image.Image, int]

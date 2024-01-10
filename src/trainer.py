@@ -25,8 +25,8 @@ from transformers import AdamW
 from transformers import AutoImageProcessor, ResNetForImageClassification
 import lightning as L
 
-from data import RetinopathyDataset, Split
-from metrics import Metrics
+from src.data import RetinopathyDataset, Split
+from src.metrics import Metrics
 
 
 def worker_init_fn(worker_id: int) -> None:
