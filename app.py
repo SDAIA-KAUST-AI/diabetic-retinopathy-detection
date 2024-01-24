@@ -10,6 +10,7 @@ from transformers import (AutoImageProcessor,
                           ResNetForImageClassification)
 
 from src.labelmap import DR_LABELMAP
+from src.fetch_files import fetch_files
 
 
 class App:
@@ -21,6 +22,9 @@ class App:
         ckpt_name = "2023-12-24_20-02-18_30345221_V100_x4_resnet34/"
 
         path = f"release_ckpts/{ckpt_name}/inference/"
+
+        if not os.path.exists(path):
+            raise Exception(f"Checkpoint not found at {path}")
 
         self.image_processor = AutoImageProcessor.from_pretrained(path)
 
@@ -147,6 +151,7 @@ class App:
 
 def main():
     """ App entry point. """
+    fetch_files()
     app = App()
     app.launch()
 

@@ -4,6 +4,8 @@
 /slurm_logs
 
 /lightning_logs/
+/demo_data/
+/release_ckpts/
 
 __pycache__
 
