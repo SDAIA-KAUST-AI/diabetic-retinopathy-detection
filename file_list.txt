@@ -48,9 +48,6 @@ demo_data/demo/2/43789_right.jpeg
 demo_data/demo/2/7906_right.jpeg
 demo_data/demo/2/31160_left.jpeg
 demo_data/demo/2/7805_right.jpeg
-release_ckpts/2023-12-20_18-39-06_30301601_V100_x4_resnet50_896_setseeds/inference/preprocessor_config.json
-release_ckpts/2023-12-20_18-39-06_30301601_V100_x4_resnet50_896_setseeds/inference/config.json
-release_ckpts/2023-12-20_18-39-06_30301601_V100_x4_resnet50_896_setseeds/inference/model.safetensors
 release_ckpts/2023-12-24_20-02-18_30345221_V100_x4_resnet34/inference/preprocessor_config.json
 release_ckpts/2023-12-24_20-02-18_30345221_V100_x4_resnet34/inference/model.safetensors
 release_ckpts/2023-12-24_20-02-18_30345221_V100_x4_resnet34/inference/config.json
