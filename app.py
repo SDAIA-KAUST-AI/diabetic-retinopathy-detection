@@ -74,7 +74,12 @@ class App:
 
     def launch(self) -> None:
         """ Launch the application, blocking. """
-        self.ui.queue().launch(share=True)
+        if 'LABEEB' in os.environ:
+            kwargs = dict(share=False, debug=True,
+                          server_port=8050, server_name="0.0.0.0")
+        else:
+            kwargs = dict(share=True)
+        self.ui.queue().launch(**kwargs)
 
     def predict(self, image: Optional[np.ndarray]) -> Dict[str, float]:
         """ Gradio callback for pricessing of an image.
