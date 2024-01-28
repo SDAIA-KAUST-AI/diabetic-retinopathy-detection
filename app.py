@@ -48,7 +48,7 @@ class App:
                     output = gr.Label(num_top_classes=len(DR_LABELMAP),
                                       label="Retinopathy level prediction")
                 with gr.Column(scale=4):
-                    gr.Markdown("![](https://media.githubusercontent.com/media/SDAIA-KAUST-AI/diabetic-retinopathy-detection/main/media/logo1.png)")
+                    gr.Markdown("![](https://raw.githubusercontent.com/SDAIA-KAUST-AI/diabetic-retinopathy-detection/main/media/logo1.png)")
             with gr.Row():
                 with gr.Column(scale=9, min_width=100):
                     image = gr.Image(label="Retina scan")
