@@ -77,6 +77,9 @@ class App:
         if 'LABEEB' in os.environ:
             kwargs = dict(share=False, debug=True,
                           server_port=8050, server_name="0.0.0.0")
+            if 'ROUTE' in os.environ:
+                route = os.environ["ROUTE"]
+                kwargs['root_path'] = route
         else:
             kwargs = dict(share=True)
         self.ui.queue().launch(**kwargs)
